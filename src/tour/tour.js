@@ -25,9 +25,7 @@ angular.module('angular-tour.tour', [])
         steps = self.steps = orderedList();
 
     // we'll pass these in from the directive
-    self.postTourCallback = angular.noop;
-    self.postStepCallback = angular.noop;
-    self.showStepCallback = angular.noop;
+    self.postTourCallback = self.postStepCallback = self.showStepCallback = angular.noop;
     self.currentStep = -1;
 
     // if currentStep changes, select the new step
@@ -112,9 +110,9 @@ angular.module('angular-tour.tour', [])
         });
 
         ctrl.postTourCallback = function(completed) {
-          angular.element('.tour-backdrop').remove();
+          angular.element(document.getElementsByClassName('tour-backdrop')).remove();
           backDrop = false;
-          angular.element('.tour-element-active').removeClass('tour-element-active');
+          angular.element(document.getElementsByClassName('tour-element-active')).removeClass('tour-element-active');
 
           if (completed && angular.isDefined(attrs.tourComplete)) {
             scope.$parent.$eval(attrs.tourComplete);
@@ -132,7 +130,7 @@ angular.module('angular-tour.tour', [])
 
         ctrl.showStepCallback = function () {
           if(!backDrop && tourConfig.backDrop) {
-            angular.element('body').append(angular.element('<div class="tour-backdrop"></div>'));
+            angular.element(document.body).append(angular.element('<div class="tour-backdrop"></div>'));
             backDrop = true;
           }
         };
@@ -229,7 +227,7 @@ angular.module('angular-tour.tour', [])
         //however, when using virtual steps, whose steps can be placed in different
         //controller, so it affects scope, which will be used to run this action against.
         function getTargetScope() {
-          var targetElement = scope.ttElement ? angular.element(scope.ttElement) : element;
+          var targetElement = scope.ttElement ? angular.element(document.querySelectorAll(scope.ttElement)) : element;
 
           var targetScope = scope;
           if(targetElement !== element && !scope.ttSourceScope)
@@ -301,18 +299,18 @@ angular.module('angular-tour.tour', [])
             return;
           }
 
-          if(scope.ttAnimation)
-            tourtip.fadeIn();
-          else {
-            tourtip.css({ display: 'block' });
-          }
+          // if(scope.ttAnimation)
+          //   tourtip.fadeIn();
+          // else {
+          tourtip.css({ display: 'block' });
+          // }
 
-          var targetElement = scope.ttElement ? angular.element(scope.ttElement) : element;
+          var targetElement = scope.ttElement ? angular.element(document.querySelectorAll(scope.ttElement)) : element;
 
           if(targetElement == null || targetElement.length === 0)
             throw 'Target element could not be found. Selector: ' + scope.ttElement;
 
-          angular.element('body').append(tourtip);
+          angular.element(document.body).append(tourtip);
 
           var updatePosition = function() {
             var ttPosition = calculatePosition(targetElement);
@@ -347,7 +345,7 @@ angular.module('angular-tour.tour', [])
         }
 
         function focusActiveElement(el) {
-          angular.element('.tour-element-active').removeClass('tour-element-active');
+          angular.element(document.getElementsByClassName('tour-element-active')).removeClass('tour-element-active');
 
           if(!scope.centered)
             el.addClass('tour-element-active');

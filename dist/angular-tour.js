@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website
- * @version v0.1.1 - 2014-11-05
+ * @version v0.1.1 - 2015-03-02
  * @link https://github.com/DaftMonk/angular-tour
  * @author Tyler Henkel
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -8,7 +8,7 @@
 
 (function (window, document, undefined) {
   'use strict';
-  angular.module('angular-tour', ['angular-tour.tour']);
+  angular.module('angular-tour', []);
   angular.module('angular-tour.tour', []).constant('tourConfig', {
     placement: 'top',
     animation: true,
@@ -23,9 +23,7 @@
     function ($scope, orderedList) {
       var self = this, steps = self.steps = orderedList();
       // we'll pass these in from the directive
-      self.postTourCallback = angular.noop;
-      self.postStepCallback = angular.noop;
-      self.showStepCallback = angular.noop;
+      self.postTourCallback = self.postStepCallback = self.showStepCallback = angular.noop;
       self.currentStep = -1;
       // if currentStep changes, select the new step
       $scope.$watch(function () {
@@ -96,9 +94,9 @@
             ctrl.currentStep = newVal;
           });
           ctrl.postTourCallback = function (completed) {
-            angular.element('.tour-backdrop').remove();
+            angular.element(document.getElementsByClassName('tour-backdrop')).remove();
             backDrop = false;
-            angular.element('.tour-element-active').removeClass('tour-element-active');
+            angular.element(document.getElementsByClassName('tour-element-active')).removeClass('tour-element-active');
             if (completed && angular.isDefined(attrs.tourComplete)) {
               scope.$parent.$eval(attrs.tourComplete);
             }
@@ -113,7 +111,7 @@
           };
           ctrl.showStepCallback = function () {
             if (!backDrop && tourConfig.backDrop) {
-              angular.element('body').append(angular.element('<div class="tour-backdrop"></div>'));
+              angular.element(document.body).append(angular.element('<div class="tour-backdrop"></div>'));
               backDrop = true;
             }
           };
@@ -194,7 +192,7 @@
           //however, when using virtual steps, whose steps can be placed in different
           //controller, so it affects scope, which will be used to run this action against.
           function getTargetScope() {
-            var targetElement = scope.ttElement ? angular.element(scope.ttElement) : element;
+            var targetElement = scope.ttElement ? angular.element(document.querySelectorAll(scope.ttElement)) : element;
             var targetScope = scope;
             if (targetElement !== element && !scope.ttSourceScope)
               targetScope = targetElement.scope();
@@ -255,21 +253,21 @@
             if (!scope.ttContent) {
               return;
             }
-            if (scope.ttAnimation)
-              tourtip.fadeIn();
-            else {
-              tourtip.css({ display: 'block' });
-            }
-            var targetElement = scope.ttElement ? angular.element(scope.ttElement) : element;
+            // if(scope.ttAnimation)
+            //   tourtip.fadeIn();
+            // else {
+            tourtip.css({ display: 'block' });
+            // }
+            var targetElement = scope.ttElement ? angular.element(document.querySelectorAll(scope.ttElement)) : element;
             if (targetElement == null || targetElement.length === 0)
               throw 'Target element could not be found. Selector: ' + scope.ttElement;
-            angular.element('body').append(tourtip);
+            angular.element(document.body).append(tourtip);
             var updatePosition = function () {
               var ttPosition = calculatePosition(targetElement);
               // Now set the calculated positioning.
               tourtip.css(ttPosition);
               // Scroll to the tour tip
-              scrollTo(tourtip, -200, -300, tourConfig.scrollSpeed);
+              scrollTo(tourtip, -300, -200);
             };
             if (tourConfig.backDrop)
               focusActiveElement(targetElement);
@@ -288,7 +286,7 @@
             angular.element($window).unbind('resize.' + scope.$id);
           }
           function focusActiveElement(el) {
-            angular.element('.tour-element-active').removeClass('tour-element-active');
+            angular.element(document.getElementsByClassName('tour-element-active')).removeClass('tour-element-active');
             if (!scope.centered)
               el.addClass('tour-element-active');
           }
@@ -391,17 +389,14 @@
     };
     return orderedListFactory;
   }).factory('scrollTo', function () {
-    return function (target, offsetY, offsetX, speed) {
+    return function (target, offsetX, offsetY) {
       if (target) {
-        offsetY = offsetY || -100;
+        var rect = target.getBoundingClientRect();
         offsetX = offsetX || -100;
-        speed = speed || 500;
-        $('html,body').stop().animate({
-          scrollTop: target.offset().top + offsetY,
-          scrollLeft: target.offset().left + offsetX
-        }, speed);
+        offsetY = offsetY || -100;
+        window.scrollTo(rect.left + offsetX, rect.top + offsetY);
       } else {
-        $('html,body').stop().animate({ scrollTop: 0 }, speed);
+        window.scrollTo(0);
       }
     };
   });
