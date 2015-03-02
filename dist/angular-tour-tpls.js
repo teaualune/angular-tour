@@ -279,7 +279,7 @@
               // Now set the calculated positioning.
               tourtip.css(ttPosition);
               // Scroll to the tour tip
-              scrollTo(tourtip, -200, -300, tourConfig.scrollSpeed);
+              scrollTo(tourtip, -300, -200);
             };
             if (tourConfig.backDrop)
               focusActiveElement(targetElement);
@@ -401,17 +401,14 @@
     };
     return orderedListFactory;
   }).factory('scrollTo', function () {
-    return function (target, offsetY, offsetX, speed) {
+    return function (target, offsetX, offsetY) {
       if (target) {
-        offsetY = offsetY || -100;
+        var rect = target.getBoundingClientRect();
         offsetX = offsetX || -100;
-        speed = speed || 500;
-        $('html,body').stop().animate({
-          scrollTop: target.offset().top + offsetY,
-          scrollLeft: target.offset().left + offsetX
-        }, speed);
+        offsetY = offsetY || -100;
+        window.scrollTo(rect.left + offsetX, rect.top + offsetY);
       } else {
-        $('html,body').stop().animate({ scrollTop: 0 }, speed);
+        window.scrollTo(0);
       }
     };
   });

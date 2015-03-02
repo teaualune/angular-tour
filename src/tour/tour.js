@@ -321,7 +321,7 @@ angular.module('angular-tour.tour', [])
             tourtip.css( ttPosition );
 
             // Scroll to the tour tip
-            scrollTo(tourtip, -200, -300, tourConfig.scrollSpeed);
+            scrollTo(tourtip, -300, -200);
           };
 
           if(tourConfig.backDrop)
@@ -474,14 +474,14 @@ angular.module('angular-tour.tour', [])
    * Smoothly scroll to a dom element
    */
   .factory('scrollTo', function() {
-    return function(target, offsetY, offsetX, speed) {
-      if(target) {
-        offsetY = offsetY || -100;
+    return function (target, offsetX, offsetY) {
+      if (target) {
+        var rect = target.getBoundingClientRect();
         offsetX = offsetX || -100;
-        speed = speed || 500;
-        $('html,body').stop().animate({scrollTop: target.offset().top + offsetY, scrollLeft: target.offset().left + offsetX}, speed);
+        offsetY = offsetY || -100;
+        window.scrollTo(rect.left + offsetX, rect.top + offsetY);
       } else {
-        $('html,body').stop().animate({scrollTop: 0}, speed);
+        window.scrollTo(0);
       }
     };
   });
